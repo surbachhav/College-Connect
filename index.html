@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>College Connect - Login</title>
+</head>
+<body>
+
+
+<div id="login-container">
+   <h1>College Connect</h1>
+   <h3>Login</h3>
+   <label for="username">Username:</label>
+   <input type="text" id="username" name="username" required>
+
+   <label for="password">Password:</label>
+   <div class="password-container">
+       <input type="password" id="password" name="password" required>
+
+   </div>
+
+
+   <button onclick="login()">Login</button>
+   <p id="error-message"></p>
+</div>
+
+
+<script>
+   function login() {
+       var username = document.getElementById("username").value;
+       var password = document.getElementById("password").value;
+
+
+       var validUsername = "bloomberg";
+       var validPassword = "2023";
+
+
+       if (username === validUsername && password === validPassword) {
+           alert("Login successful!");
+           window.location.href = "table";
+       } else {
+           document.getElementById("username").value = "";
+           document.getElementById("password").value = "";
+           document.getElementById("error-message").innerText = "Invalid username or password.";
+       }
+   }
+
+</script>
+
+
+</body>
+</html>
