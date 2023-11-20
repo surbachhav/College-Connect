@@ -36,6 +36,7 @@
    <label for="minValue">Min Value:</label>
    <input type="range" id="minValue" name="minValue" min="0" max="100000" value="20000" step="5000" list="tickmarks">
 
+<br>
 
    <label for="maxValue">Max Value:</label>
    <input type="range" id="maxValue" name="maxValue" min="0" max="100000" value="26000" step="5000" list="tickmarks">
@@ -77,43 +78,197 @@
         <a href="check_priv"><input type="button" value="Private"></a>
         <a href="check_prop"><input type="button" value="Proprietary"></a>
     </div>
+    <div class="child">
+    <h5>Region</h5>
+    <button id="westButton">West</button>
+    <button id="southwestButton">Southwest</button>
+    <button id="midwestButton">Midwest</button>
+    <button id="southeastButton">Southeast</button>
+    <button id="northeastButton">Northeast</button>
+    </div>
+    <div class = "child">
+        <h5>Size</h5>
+            <label for="minEnrollment">Min Enrollment:</label>
+    <input type="range" id="minEnrollment" name="minEnrollment" min="0" max="100000" value="20000" step="5000" list="enrollmentTickmarks">
+    <br>
+    <label for="maxEnrollment">Max Enrollment:</label>
+    <input type="range" id="maxEnrollment" name="maxEnrollment" min="0" max="100000" value="26000" step="5000" list="enrollmentTickmarks">
+
+    <datalist id="enrollmentTickmarks">
+        <option value="0">
+        <option value="5000">
+        <option value="10000">
+        <option value="15000">
+        <option value="20000">
+        <option value="25000">
+        <option value="30000">
+        <option value="35000">
+        <option value="40000">
+        <option value="45000">
+        <option value="50000">
+        <option value="55000">
+        <option value="60000">
+        <option value="65000">
+        <option value="70000">
+        <option value="75000">
+        <option value="80000">
+        <option value="85000">
+        <option value="90000">
+        <option value="95000">
+        <option value="100000">
+    </datalist>
+
+    <p>Selected Range: <span id="selectedRangeMinEnrollment">20,000</span> - <span id="selectedRangeMaxEnrollment">25,000</span></p>
+
+    <button id="saveEnrollmentButton">Save Enrollment Values</button>
+    </div>
 </div>
 
+<script>
+    const minValue = document.getElementById('minValue');
+    const maxValue = document.getElementById('maxValue');
+    const selectedRangeMin = document.getElementById('selectedRangeMin');
+    const selectedRangeMax = document.getElementById('selectedRangeMax');
+    const saveButton = document.getElementById('saveButton');
+
+    saveButton.addEventListener('click', saveValues);
+
+    function updateRange() {
+        selectedRangeMin.textContent = minValue.value;
+        selectedRangeMax.textContent = maxValue.value;
+    }
+
+    function saveValues() {
+        const minSelectedValue = minValue.value;
+        const maxSelectedValue = maxValue.value;
+
+        if (parseInt(minSelectedValue) > parseInt(maxSelectedValue)) {
+            alert("Error: Minimum value should not be greater than the maximum value.");
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/save_values', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    updateTable(response.data);
+                } else {
+                    alert("Error: " + JSON.parse(xhr.responseText).error);
+                }
+            }
+        };
+
+        xhr.send(JSON.stringify({ min: minSelectedValue, max: maxSelectedValue }));
+    }
+
+    function updateTable(data) {
+        const tableBody = document.querySelector('tbody');
+        tableBody.innerHTML = '';
+
+        data.forEach(row => {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${row[0]}</td>
+                <td>${row[1]}</td>
+                <td>${row[2]}</td>
+                <td>${row[3]}</td>
+                <td>${row[4]}</td>
+                <td>${row[5]}</td>
+                <td>${row[6]}</td>
+                <td>${row[7]}</td>
+                <td>${row[8]}</td>
+                <td>${row[9]}</td>
+                <td>${row[10]}</td>
+            `;
+            tableBody.appendChild(newRow);
+        });
+    }
+
+    minValue.addEventListener('input', updateRange);
+    maxValue.addEventListener('input', updateRange);
+</script>
+
+<script>
+    const minEnrollment = document.getElementById('minEnrollment');
+    const maxEnrollment = document.getElementById('maxEnrollment');
+    const selectedRangeMinEnrollment = document.getElementById('selectedRangeMinEnrollment');
+    const selectedRangeMaxEnrollment = document.getElementById('selectedRangeMaxEnrollment');
+    const saveEnrollmentButton = document.getElementById('saveEnrollmentButton');
+
+    saveEnrollmentButton.addEventListener('click', saveEnrollmentValues);
+    minEnrollment.addEventListener('input', updateEnrollmentRange);
+    maxEnrollment.addEventListener('input', updateEnrollmentRange);
+
+    function updateEnrollmentRange() {
+        selectedRangeMinEnrollment.textContent = minEnrollment.value;
+        selectedRangeMaxEnrollment.textContent = maxEnrollment.value;
+    }
+
+    function saveEnrollmentValues() {
+        const minSelectedEnrollment = minEnrollment.value;
+        const maxSelectedEnrollment = maxEnrollment.value;
+
+        if (parseInt(minSelectedEnrollment) > parseInt(maxSelectedEnrollment)) {
+            alert("Error: Minimum enrollment should not be greater than the maximum enrollment.");
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/save_values_enrollment', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    updateTable(response.data);
+                } else {
+                    alert("Error: " + JSON.parse(xhr.responseText).error);
+                }
+            }
+        };
+
+        xhr.send(JSON.stringify({ min: minSelectedEnrollment, max: maxSelectedEnrollment }));
+    }
+</script>
 
 
-   <script>
-       const minValue = document.getElementById('minValue');
-       const maxValue = document.getElementById('maxValue');
-       const selectedRangeMin = document.getElementById('selectedRangeMin');
-       const selectedRangeMax = document.getElementById('selectedRangeMax');
-       const saveButton = document.getElementById('saveButton');
+<script>
+    const westButton = document.getElementById('westButton');
+    const southwestButton = document.getElementById('southwestButton');
+    const midwestButton = document.getElementById('midwestButton');
+    const southeastButton = document.getElementById('southeastButton');
+    const northeastButton = document.getElementById('northeastButton');
 
+    westButton.addEventListener('click', () => filterByRegion(['CA', 'NV', 'AK', 'HI', 'OR', 'WA', 'UT', 'ID', 'CO', 'WY', 'MT']));
+    southwestButton.addEventListener('click', () => filterByRegion(['AZ', 'NM', 'OK', 'TX']));
+    midwestButton.addEventListener('click', () => filterByRegion(['ND', 'MN', 'SD', 'NE', 'KS', 'MO', 'IA', 'IL', 'WI', 'MI', 'IN', 'OH']));
+    southeastButton.addEventListener('click', () => filterByRegion(['AR', 'LA', 'MS', 'AL', 'GA', 'TN', 'KY', 'WV', 'VA', 'NC', 'SC', 'FL']));
+    northeastButton.addEventListener('click', () => filterByRegion(['PA', 'MD', 'DE', 'NJ', 'NY', 'CT', 'RI', 'MA', 'NH', 'VT', 'ME']));
 
-       saveButton.addEventListener('click', saveValues);
+    function filterByRegion(states) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/filter_by_region', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
 
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    updateTable(response.data);
+                } else {
+                    alert("Error: " + JSON.parse(xhr.responseText).error);
+                }
+            }
+        };
 
-       function updateRange() {
-           selectedRangeMin.textContent = minValue.value;
-           selectedRangeMax.textContent = maxValue.value;
-       }
-
-
-       function saveValues() {
-           const minSelectedValue = minValue.value;
-           const maxSelectedValue = maxValue.value;
-
-
-           const xhr = new XMLHttpRequest();
-           xhr.open('POST', '/save_values', true);
-           xhr.setRequestHeader('Content-Type', 'application/json');
-           xhr.send(JSON.stringify({ min: minSelectedValue, max: maxSelectedValue }));
-       }
-
-
-       minValue.addEventListener('input', updateRange);
-       maxValue.addEventListener('input', updateRange);
-   </script>
-
+        xhr.send(JSON.stringify({ states: states }));
+    }
+</script>
 
 <br>
 <br>
