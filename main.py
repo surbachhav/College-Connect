@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 
 import psycopg2
 from requests_html import HTMLSession
@@ -94,33 +94,78 @@ def order_by_gpa():
 
 
 
-
-@app.route('/save_values')
+@app.route('/save_values', methods=['POST'])
 def save_values():
-   data = request.get_json()
-   min_value = data['min']
-   max_value = data['max']
-   connection = psycopg2.connect(**db_config)
-   mycursor = connection.cursor()
+    try:
+        data = request.get_json()
+        min_value = data['min']
+        max_value = data['max']
+
+        if min_value > max_value:
+            raise ValueError("Minimum value should not be greater than the maximum value.")
+
+        mycursor = conn.cursor()
+
+        query = "SELECT * FROM Colleges WHERE cost BETWEEN %s AND %s ORDER BY cost"
+        mycursor.execute(query, (min_value, max_value))
+
+        data = mycursor.fetchall()
+        return jsonify({"data": data})
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)})
+
+    finally:
+        mycursor.close()
+
+@app.route('/save_values_enrollment', methods=['POST'])
+def save_values_enrollment():
+    try:
+        data = request.get_json()
+        min_enrollment_value = data['min'];
+        max_enrollment_value = data['max'];
+
+        # Check if min_enrollment_value is greater than max_enrollment_value
+        if min_enrollment_value > max_enrollment_value:
+            raise ValueError("Minimum enrollment should not be greater than the maximum enrollment.")
+
+        mycursor = conn.cursor()
+
+        query = "SELECT * FROM Colleges WHERE enrollment BETWEEN %s AND %s ORDER BY enrollment"
+        mycursor.execute(query, (min_enrollment_value, max_enrollment_value))
+
+        data = mycursor.fetchall()
+        return jsonify({"data": data})
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)})
+
+    finally:
+        mycursor.close()
 
 
-   try:
-       query = "SELECT * FROM your_table WHERE cost BETWEEN %s AND %s"
-       mycursor.execute(query, (min_value, max_value))
+@app.route('/filter_by_region', methods=['POST'])
+def filter_by_region():
+    try:
+        data = request.get_json()
+        states = data['states']
 
+        mycursor = conn.cursor()
 
-       data = mycursor.fetchall()
-       return render_template('table.html', data=data)
+        query = "SELECT * FROM Colleges WHERE state IN %s"
+        mycursor.execute(query, (tuple(states),))
 
+        data = mycursor.fetchall()
+        return jsonify({"data": data})
 
-   except Exception as e:
-       print(f"Error: {e}")
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)})
 
-
-   finally:
-       # Close the cursor and connection
-       mycursor.close()
-       connection.close()
+    finally:
+        mycursor.close()
 
 @app.route('/check_pub')
 def check_pub():
@@ -142,10 +187,10 @@ def check_prop():
    data = mycursor.fetchall()
    return render_template('table.html', data=data)
 
-
 @app.route('/mycolleges')
-def colleges():
-   return "<h1>View My Colleges Here!</h1>"
+def mycollege():
+   return render_template('mycolleges.html')
+
 
 s = HTMLSession()
 app.run(host="127.0.0.1", port=9999, debug=True, threaded=True)
