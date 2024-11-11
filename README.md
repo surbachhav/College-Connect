@@ -1,2 +1,1 @@
-# college-connect
-# Bloomberg Mentorship Project
+Mentorship project completed @ Bloomberg
